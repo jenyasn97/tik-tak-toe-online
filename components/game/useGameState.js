@@ -22,7 +22,17 @@ const computeWinner = (cells) => {
 };
 
 function useGameState() {
-  const [cells, setCells] = useState([null, null, null, null, null, null, null, null, null]);
+  const [cells, setCells] = useState([
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+  ]);
   const [currentStep, setCurrentStep] = useState(SYMBOL_O);
   const [winnerSequence, setWinnerSequence] = useState();
 
