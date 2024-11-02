@@ -2,7 +2,7 @@ function TringleIcon({ className }) {
   return (
     <svg
       className={className}
-      width="12"
+      width="20"
       height="12"
       viewBox="0 0 12 12"
       fill="none"

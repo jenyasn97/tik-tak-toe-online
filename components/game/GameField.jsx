@@ -3,8 +3,8 @@ import UiButton from "../uikit/UIButton";
 import { useGameState } from "./useGameState";
 import GameSymbol from "./GameSymol";
 
-function GameField({ className }) {
-  const { cells, currentMove, nextMove, handleCellClick } = useGameState();
+function GameField({ className, playersCount }) {
+  const { cells, currentMove, nextMove, handleCellClick } = useGameState(playersCount);
 
   const actions = (
     <>

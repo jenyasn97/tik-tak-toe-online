@@ -13,7 +13,7 @@ function Header() {
         Играть
       </UIButton>
       <button className="ml-auto flex items-center text-start gap-2 text-teal-600">
-        <Profile />
+        <Profile name="Sultan" rating={1900} />
         <ArrowDownIcon />
       </button>
     </header>
