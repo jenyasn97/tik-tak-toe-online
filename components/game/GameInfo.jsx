@@ -9,6 +9,7 @@ import avatar1 from "./images/av1.png";
 import avatar2 from "./images/av2.png";
 import avatar3 from "./images/av3.png";
 import avatar4 from "./images/av4.png";
+import { useEffect, useState } from "react";
 
 const players = [
   {
@@ -41,7 +42,7 @@ const players = [
   },
 ];
 
-function GameInfo({ className, playersCount }) {
+function GameInfo({ className, playersCount, currentMove }) {
   return (
     <div
       className={clsx(
@@ -55,6 +56,7 @@ function GameInfo({ className, playersCount }) {
             key={player.id}
             playerInfo={player}
             isRight={idx % 2 === 1}
+            isTimerRunning={currentMove === player.symbol}
           />
         );
       })}
@@ -64,7 +66,33 @@ function GameInfo({ className, playersCount }) {
 
 export default GameInfo;
 
-function PlayerInfo({ playerInfo, isRight }) {
+function PlayerInfo({ playerInfo, isRight, isTimerRunning }) {
+  const [seconds, setSeconds] = useState(60);
+  const minutesString = String(Math.floor(seconds / 60)).padStart(2, "0");
+  const secondsString = String(seconds % 60).padStart(2, "0");
+
+  const isDanger = seconds < 10;
+
+  useEffect(() => {
+    if (isTimerRunning) {
+      const interval = setInterval(() => {
+        setSeconds((s) => Math.max(s - 1, 0));
+      }, 1000);
+      return () => {
+        clearInterval(interval);
+        setSeconds(60);
+      };
+    }
+  }, [isTimerRunning]);
+
+  const getTimerColor = () => {
+    if (isTimerRunning) {
+      return isDanger ? "text-orange-600" : "text-slate-900";
+    } else {
+      return "text-slate-200";
+    }
+  };
+
   return (
     <div className="flex gap-3 items-center">
       <div className={clsx("relative", isRight && "order-3")}>
@@ -83,11 +111,12 @@ function PlayerInfo({ playerInfo, isRight }) {
       ></div>
       <div
         className={clsx(
-          "text-slate-900 text-lg font-semibold",
+          "text-slate-900 text-lg font-semibold w-[60px]",
           isRight && "order-1",
+          getTimerColor(),
         )}
       >
-        01:08
+        {minutesString}:{secondsString}
       </div>
     </div>
   );

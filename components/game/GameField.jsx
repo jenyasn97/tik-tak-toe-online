@@ -1,11 +1,15 @@
 import clsx from "clsx";
 import UiButton from "../uikit/UIButton";
-import { useGameState } from "./useGameState";
 import GameSymbol from "./GameSymol";
 
-function GameField({ className, playersCount }) {
-  const { cells, currentMove, nextMove, handleCellClick } = useGameState(playersCount);
-
+function GameField({
+  className,
+  cells,
+  currentMove,
+  nextMove,
+  handleCellClick,
+  winnerSequance,
+}) {
   const actions = (
     <>
       <UiButton variant="primary" size="md">
@@ -32,6 +36,7 @@ function GameField({ className, playersCount }) {
                 handleCellClick(idx);
               }}
               key={idx}
+              isWinner={winnerSequance?.includes(idx)}
             >
               {symbol && <GameSymbol symbol={symbol} className="w-5 h-5" />}
             </GameCell>
@@ -80,11 +85,14 @@ function GameGrid({ children }) {
   );
 }
 
-function GameCell({ children, onClick }) {
+function GameCell({ children, onClick, isWinner }) {
   return (
     <button
       onClick={onClick}
-      className="border -ml-px -mb-px border-slate-200  flex items-center justify-center"
+      className={clsx(
+        "border -ml-px -mb-px border-slate-200  flex items-center justify-center",
+        isWinner ? "bg-orange-300" : "",
+      )}
     >
       {children}
     </button>
