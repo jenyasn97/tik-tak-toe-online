@@ -1,7 +1,5 @@
 import clsx from "clsx";
 import { Profile } from "../profile";
-import CrossIcon from "./icons/CrossIcon";
-import ZeroIcon from "./icons/ZeroIcon";
 import GameSymbol from "./GameSymol";
 import { GAME_SYMBOLS } from "./constants";
 
@@ -42,7 +40,13 @@ const players = [
   },
 ];
 
-function GameInfo({ className, playersCount, currentMove }) {
+function GameInfo({
+  className,
+  playersCount,
+  currentMove,
+  isWinner,
+  onPlayerTimeOver,
+}) {
   return (
     <div
       className={clsx(
@@ -56,7 +60,10 @@ function GameInfo({ className, playersCount, currentMove }) {
             key={player.id}
             playerInfo={player}
             isRight={idx % 2 === 1}
-            isTimerRunning={currentMove === player.symbol}
+            isTimerRunning={currentMove === player.symbol && !isWinner}
+            onTimeOver={() => {
+              onPlayerTimeOver(player.symbol);
+            }}
           />
         );
       })}
@@ -66,7 +73,7 @@ function GameInfo({ className, playersCount, currentMove }) {
 
 export default GameInfo;
 
-function PlayerInfo({ playerInfo, isRight, isTimerRunning }) {
+function PlayerInfo({ playerInfo, isRight, isTimerRunning, onTimeOver }) {
   const [seconds, setSeconds] = useState(60);
   const minutesString = String(Math.floor(seconds / 60)).padStart(2, "0");
   const secondsString = String(seconds % 60).padStart(2, "0");
@@ -84,6 +91,13 @@ function PlayerInfo({ playerInfo, isRight, isTimerRunning }) {
       };
     }
   }, [isTimerRunning]);
+
+  useEffect(() => {
+    if (seconds === 0) {
+      onTimeOver();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seconds]);
 
   const getTimerColor = () => {
     if (isTimerRunning) {
@@ -111,7 +125,7 @@ function PlayerInfo({ playerInfo, isRight, isTimerRunning }) {
       ></div>
       <div
         className={clsx(
-          "text-slate-900 text-lg font-semibold w-[60px]",
+          "text-lg font-semibold w-[60px]",
           isRight && "order-1",
           getTimerColor(),
         )}
