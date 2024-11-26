@@ -16,15 +16,28 @@ import { getNextMove } from "./model/getNextMove";
 import { computeWinner } from "./model/computeWinner";
 import { useMemo, useReducer } from "react";
 import { computeWinnerSymbol } from "./model/computeWinnerSymbol";
+import { computePlayerTimer } from "./model/computePlayerTimer";
+import { useInterval } from "../lib/timers";
 
 const PLAYERS_COUNT = 2;
 
 export default function Game() {
   const [gameState, dispatch] = useReducer(
     gameStateReducer,
-    { playersCount: PLAYERS_COUNT },
+    {
+      playersCount: PLAYERS_COUNT,
+      defaultTimer: 60000,
+      currentMoveStart: Date.now(),
+    },
     initGameState,
   );
+
+  useInterval(1000, gameState.currentMoveStart, () => {
+    dispatch({
+      type: GAME_STATE_ACTIONS.TICK,
+      now: Date.now(),
+    });
+  });
 
   const winnerSequance = computeWinner(gameState);
   const nextMove = getNextMove(gameState);
@@ -46,12 +59,17 @@ export default function Game() {
           <GameInfo isRatingGame playersCount={4} timeMode={"1 мин. на ход"} />
         }
         playersList={PLAYERS.slice(0, PLAYERS_COUNT).map((player, index) => {
+          const { timer, timerStartAt } = computePlayerTimer(
+            gameState,
+            player.symbol,
+          );
           return (
             <PlayerInfo
               key={player.id}
               avatar={player.avatar}
               isRight={index % 2 === 1}
-              seconds={60}
+              timer={timer}
+              timerStartAt={timerStartAt}
               symbol={player.symbol}
               name={player.name}
               rating={player.rating}
@@ -73,7 +91,11 @@ export default function Game() {
               isWinner={winnerSequance?.includes(idx)}
               disabled={!!winnerSymbol}
               onClick={() => {
-                dispatch({ type: GAME_STATE_ACTIONS.CELL_CLICK, idx });
+                dispatch({
+                  type: GAME_STATE_ACTIONS.CELL_CLICK,
+                  idx,
+                  now: Date.now(),
+                });
               }}
               symbol={cell}
             />
@@ -88,7 +110,7 @@ export default function Game() {
               key={player.id}
               avatar={player.avatar}
               isRight={index % 2 === 1}
-              seconds={60}
+              timer={gameState.timers[player.symbol]}
               symbol={player.symbol}
               name={player.name}
               rating={player.rating}
