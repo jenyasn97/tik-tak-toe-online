@@ -5,7 +5,7 @@ import GameInfo from "./ui/GameInfo";
 import GameLayout from "./ui/GameLayout";
 import GameMoveInfo from "./ui/GameMoveInfo";
 import GameTitle from "./ui/GameTitle";
-import PlayerInfo from "./ui/PlayerInfo";
+import { PlayerInfo } from "./ui/PlayerInfo";
 import GameOverModal from "./ui/GameOverModal";
 import {
   GAME_STATE_ACTIONS,
@@ -14,7 +14,7 @@ import {
 } from "./model/gameStateReducer";
 import { getNextMove } from "./model/getNextMove";
 import { computeWinner } from "./model/computeWinner";
-import { useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import { computeWinnerSymbol } from "./model/computeWinnerSymbol";
 import { computePlayerTimer } from "./model/computePlayerTimer";
 import { useInterval } from "../lib/timers";
@@ -32,14 +32,18 @@ export default function Game() {
     initGameState,
   );
 
-  useInterval(1000, gameState.currentMoveStart, () => {
-    dispatch({
-      type: GAME_STATE_ACTIONS.TICK,
-      now: Date.now(),
-    });
-  });
+  useInterval(
+    1000,
+    !!gameState.currentMoveStart,
+    useCallback(() => {
+      dispatch({
+        type: GAME_STATE_ACTIONS.TICK,
+        now: Date.now(),
+      });
+    }, []),
+  );
 
-  const winnerSequance = computeWinner(gameState);
+  const winnerSequance = useMemo(() => computeWinner(gameState), [gameState]);
   const nextMove = getNextMove(gameState);
 
   const winnerSymbol = computeWinnerSymbol(gameState, {
@@ -48,6 +52,15 @@ export default function Game() {
   });
 
   const winnerPlayer = PLAYERS.find((player) => player.symbol === winnerSymbol);
+
+  const handleCellClick = useCallback((idx) => {
+    dispatch({
+      type: GAME_STATE_ACTIONS.CELL_CLICK,
+      idx,
+      now: Date.now(),
+    });
+  }, []);
+
   const { cells, currentMove } = gameState;
 
   return (
@@ -88,15 +101,10 @@ export default function Game() {
           return (
             <GameCell
               key={idx}
+              idx={idx}
               isWinner={winnerSequance?.includes(idx)}
               disabled={!!winnerSymbol}
-              onClick={() => {
-                dispatch({
-                  type: GAME_STATE_ACTIONS.CELL_CLICK,
-                  idx,
-                  now: Date.now(),
-                });
-              }}
+              onClick={handleCellClick}
               symbol={cell}
             />
           );

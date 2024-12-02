@@ -32,6 +32,5 @@ export function useInterval(interval, enebled, cb) {
       clearInterval(int);
     };
     //TODO useCallback
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [interval, enebled]);
+  }, [interval, enebled, cb]);
 }

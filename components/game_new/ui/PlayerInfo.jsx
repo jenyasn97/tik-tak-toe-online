@@ -1,10 +1,10 @@
 import clsx from "clsx";
 import Image from "next/image";
 import GameSymbol from "./GameSymbol";
-import { useEffect, useState } from "react";
+import { memo } from "react";
 import { useNow } from "../../lib/timers";
 
-export default function PlayerInfo({
+export const PlayerInfo = memo(function PlayerInfo({
   isRight,
   name,
   rating,
@@ -59,4 +59,4 @@ export default function PlayerInfo({
       </div>
     </div>
   );
-}
+});
